@@ -1,6 +1,7 @@
 import React from 'react'
 import Swal from 'sweetalert2';
 import { useState } from 'react';
+import { useAuth } from '../../hooks/useAuth';
 import { Container, Typography, TextField, Button, Alert, Box } from '@mui/material';
 
 
@@ -9,36 +10,39 @@ interface LoginFormProps {
 }
 
 export const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
+
+    const { login } = useAuth();
+
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        // Simple email validation
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            setError('El correo electrónico no es válido.');
-            console.log("Email no valido");
-            return;
-        }
-
-        // Example: check if password is empty or too short
-        if (password.length < 6) {
-            setError('La contraseña debe tener al menos 6 caracteres.');
-            console.log("Password no valido");
-            return;
-        }
-
-        setError(null);
-
-        Swal.fire({
-            icon: 'success',
-            title: 'Login Exitoso',
-            text: `Bienvenido, ${email}!`,
-        }).then((confirm) => {
-            if (confirm.isConfirmed) {
-                onLoginSuccess();
+        login(email, password).then((token: any) => {
+            if (token) {
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Login Exitoso',
+                    text: `Bienvenido, ${email}!`,
+                }).then((confirm) => {
+                    if (confirm.isConfirmed) {
+                        
+                        onLoginSuccess();
+                    }
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error de Login',
+                    text: 'Credenciales inválidas. Por favor, inténtalo de nuevo.',
+                }).then((confirm) => {
+                    if (confirm.isConfirmed) {
+                        setError('Credenciales inválidas. Por favor, inténtalo de nuevo.');
+                        console.log(confirm);
+                    }
+                });
             }
         });
     }
