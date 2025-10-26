@@ -13,6 +13,7 @@ export const useAuth = () => {
         try {
             const data = await authService.login(username, password);
             dispatch(loginSuccess(data));
+            return data;
         } catch (err: any) {
             dispatch(loginFailure(err.response?.data?.message ?? 'Login failed'));
         }

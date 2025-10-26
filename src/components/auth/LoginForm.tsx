@@ -19,9 +19,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        login(email, password).then((token: any) => {
-            if (token) {
-                
+        login(email, password).then((response: any) => {
+            if (response.data.token) {
                 Swal.fire({
                     icon: 'success',
                     title: 'Login Exitoso',
@@ -54,8 +53,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
             </Typography>
             <form onSubmit={handleSubmit}>
                 <TextField
-                    label="Email"
-                    type="email"
+                    label="User"
+                    type="text"
                     fullWidth
                     margin="normal"
                     value={email}
