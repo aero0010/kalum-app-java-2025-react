@@ -9,6 +9,7 @@ import { CareerList } from './components/careers/CareerList';
 import { useAuth } from './hooks/useAuth';
 import { ProtectedRoute } from './routes/ProtectedRoute';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { UserList } from './components/users/UserList';
 
 function App() {
   const { isAuthenticated, logout } = useAuth();
@@ -52,6 +53,14 @@ function App() {
             <CareerList />
           </ProtectedRoute>
         } />
+        <Route 
+          path='/users' 
+          element={
+            <ProtectedRoute>
+              <UserList/>
+            </ProtectedRoute>
+             
+          }/>
         <Route path='/' element={ <Navigate to='/careers' />} />
       </Routes>
     </Router>
