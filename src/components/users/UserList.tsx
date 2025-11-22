@@ -25,44 +25,47 @@ import AddIcon from '@mui/icons-material/Add';
 import Edition from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Swal from 'sweetalert2';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { SolarPower, Visibility, VisibilityOff } from '@mui/icons-material';
 import { useUser } from '../../hooks/useUser';
 
 
 interface User {
-    userId: string;
+    id: string;
     username: string;
+    fullName: string;
     email: string;
-    passwordHash: string;
     identityUser: string;
+    phoneNumber: string;
+    passwordHash: string;
     createdAt: string;
 }
 
 export const UserList: React.FC = () => {
 
-    const { getUsers } = useUser();
+    const { users, getUsers, createUser, updateUserThunk, deleteUser } = useUser();
     const [page, setPage] = useState<number>(0);
     const [rowsPerPage, setRowsPerPage] = useState<number>(5);
     const [openDialog, setOpenDialog] = useState<boolean>(false);
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const [formUsername, setFormUserName] = useState<string>('');
+    const [formFirstName, setFormFirstName] = useState<string>('')
+    const [formLastName, setFormLastName] = useState<string>('')
     const [formEmail, setFormEmail] = useState<string>('');
+    const [formPhoneNumber, setPhoneNumber] = useState<string>('');
     const [formPassword, setFormPassword] = useState<string>('');
     const [showPassword, setShowPassword] = useState(false);
 
-    const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
-    const fetchUsers = async () => {
-        setLoading(true);
-        const data: any = await getUsers();
-        setUsers(data.data);
-        setLoading(false);
-    }
-
     useEffect(() => {
-        fetchUsers();
+        const fetchData = async () => {
+            setLoading(true);
+            await getUsers();
+            setLoading(false);
+        }
+        fetchData();
     }, []);
+
 
     if (loading) {
         return (
@@ -72,11 +75,17 @@ export const UserList: React.FC = () => {
         );
     }
 
-    const handleOpenDialog = (user?: User) => {
-        if(user){
+    const handleOpenDialog = (user?: any) => {
+        if (user) {
+            console.log(user);
             setSelectedUser(user);
             setFormUserName(user.username);
-        }else{
+            setFormFirstName(user.firstname);
+            setFormLastName(user.lastname);
+            setFormEmail(user.email);
+            setPhoneNumber(user.phoneNumber);
+
+        } else {
             setSelectedUser(null);
             setFormUserName('');
         }
@@ -89,20 +98,42 @@ export const UserList: React.FC = () => {
         setFormUserName('');
     };
 
-    const handleSaveUser = () => {
+    const handleSaveUser = async () => {
+        let response: any;
+        const data = {
+            'username': formUsername,
+            'firstname': formFirstName,
+            'lastname': formLastName,
+            'email': formEmail,
+            'phoneNumber': formPhoneNumber,
+            'password': formPassword
+        };
+
+        if (selectedUser) {
+            response = await updateUserThunk(selectedUser.id, data);
+            console.log('Updated');
+            console.log(response);
+        } else {
+            response = await createUser(data);
+            console.log('Created')
+        }
+
         handleCloseDialog();
 
-        Swal.fire({
-            title: 'Usuarios',
-            text: 'El registro fue almacenado exitosamente',
-            icon: 'success',
-            confirmButtonText: 'Aceptar'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                handleCloseDialog();
-            }
-        });
+        if (response.success || response.status === 204) {
 
+            Swal.fire({
+                title: 'Usuarios',
+                text: response.message ? response.message : 'El registro fue almacenado correctamente.',
+                icon: 'success'
+            });
+        } else {
+            Swal.fire({
+                title: 'Usuarios',
+                text: response.message ? response.message : 'El registro no fue almacenado correctamente.',
+                icon: 'error'
+            });
+        }
     };
 
     const handleDeleteUser = (id: any) => {
@@ -117,9 +148,21 @@ export const UserList: React.FC = () => {
             cancelButtonText: 'Cancelar'
         }).then((result) => {
             if (result.isConfirmed) {
-                const updatedCareers = users.filter(user => user.userId !== id);
-                setUsers(updatedCareers);
-                Swal.fire('Eliminado', 'La carrera ha sido eliminada.', 'success');
+                deleteUser(id).then(response => {
+                    if (response.status == 204) {
+                        Swal.fire({
+                            title: "Eliminado",
+                            text: "El registro fue eliminado correctamente",
+                            icon: "success"
+                        });
+                    } else {
+                        Swal.fire({
+                            title: "Eliminado",
+                            text: "Hubo un problema al momento de eliminar el registro",
+                            icon: "error"
+                        });
+                    }
+                });
             }
         });
     }
@@ -143,21 +186,23 @@ export const UserList: React.FC = () => {
                         <TableHead>
                             <TableRow>
                                 <TableCell>ID</TableCell>
-                                <TableCell>USUARIO</TableCell>
-                                <TableCell>CORREO</TableCell>
-                                <TableCell>Identidad</TableCell>
-                                <TableCell>Creado</TableCell>
-                                <TableCell align="right">Acciones</TableCell>
+                                <TableCell>USERNAME</TableCell>
+                                <TableCell>FULL NAME</TableCell>
+                                <TableCell>EMAIL</TableCell>
+                                <TableCell>IDENTITY</TableCell>
+                                <TableCell>PHONE</TableCell>
+                                <TableCell align='right'>ACCIONES</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {paginatedUsers.map((user:any) => (
+                            {paginatedUsers.map((user: any) => (
                                 <TableRow key={user.id}>
                                     <TableCell>{user.id}</TableCell>
                                     <TableCell>{user.username}</TableCell>
+                                    <TableCell>{user.fullName}</TableCell>
                                     <TableCell>{user.email}</TableCell>
                                     <TableCell>{user.identityUser}</TableCell>
-                                    <TableCell>{user.fullName}</TableCell>
+                                    <TableCell>{user.phoneNumber}</TableCell>
                                     <TableCell align="right">
                                         <Button variant="outlined" color="primary" startIcon={<Edition />} sx={{ mr: 1 }} onClick={() => handleOpenDialog(user)}>
                                             Editar
@@ -194,7 +239,7 @@ export const UserList: React.FC = () => {
                     />
                 </TableContainer>
             )}
-            <Dialog open={openDialog} fullWidth maxWidth="sm" onClose={() => { handleCloseDialog() }}>
+            <Dialog open={openDialog} fullWidth maxWidth="sm" onClose={() => { handleCloseDialog() }} disableEnforceFocus>
                 {/* Formulario para agregar/editar carrera */}
                 <DialogTitle>{selectedUser ? 'Editar Usuario' : 'Agregar Usuario'}</DialogTitle>
                 <DialogContent>
@@ -210,6 +255,20 @@ export const UserList: React.FC = () => {
                         defaultValue={selectedUser ? selectedUser.username : ''}
                     />
                     <TextField
+                        label="Primer Nombre"
+                        fullWidth
+                        margin='normal'
+                        value={formFirstName}
+                        onChange={(e) => setFormFirstName(e.target.value)}
+                    />
+                    <TextField
+                        label="Apellido"
+                        fullWidth
+                        margin='normal'
+                        value={formLastName}
+                        onChange={(e) => setFormLastName(e.target.value)}
+                    />
+                    <TextField
                         margin="dense"
                         label="Correo Electronico"
                         type="email"
@@ -220,22 +279,28 @@ export const UserList: React.FC = () => {
                         defaultValue={selectedUser ? selectedUser.email : ''}
                     />
                     <TextField
+                        label="Phone Number"
+                        fullWidth margin='normal'
+                        value={formPhoneNumber}
+                        onChange={(e) => setPhoneNumber(e.target.value)}
+                    />
+                    <TextField
                         InputProps={{
                             endAdornment: (
                                 <InputAdornment position='end'>
-                                    <IconButton 
-                                        onClick={() => setShowPassword(!showPassword)} 
+                                    <IconButton
+                                        onClick={() => setShowPassword(!showPassword)}
                                         edge='end'
                                         aria-label='toggle password visibility'
-                                        >
-                                        {showPassword ? <VisibilityOff/> : <Visibility/>}
+                                    >
+                                        {showPassword ? <VisibilityOff /> : <Visibility />}
                                     </IconButton>
                                 </InputAdornment>
                             )
                         }}
                         margin="dense"
                         label="Password"
-                        type={ showPassword ? "text" : "password"}
+                        type={showPassword ? "text" : "password"}
                         fullWidth
                         variant="outlined"
                         value={formPassword}

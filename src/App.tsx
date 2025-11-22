@@ -10,6 +10,7 @@ import { useAuth } from './hooks/useAuth';
 import { ProtectedRoute } from './routes/ProtectedRoute';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { UserList } from './components/users/UserList';
+import { Dashboard } from '@mui/icons-material';
 
 function App() {
   const { isAuthenticated, logout } = useAuth();
@@ -46,7 +47,10 @@ function App() {
       )}
       <Routes>
         <Route path="/login" 
-        element={<LoginForm onLoginSuccess={() => window.location.href = '/careers'}/>} />
+        element={<LoginForm onLoginSuccess={() => window.location.href = '/dashboard'}/>} />
+        <Route path='/dashboard' element={
+          <Dashboard/>
+        }/>
         <Route path='/careers' 
         element={
           <ProtectedRoute>
@@ -61,7 +65,7 @@ function App() {
             </ProtectedRoute>
              
           }/>
-        <Route path='/' element={ <Navigate to='/careers' />} />
+        <Route path='/' element={ <Navigate to='/dashboard' />} />
       </Routes>
     </Router>
   )
