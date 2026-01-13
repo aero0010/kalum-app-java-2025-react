@@ -1,5 +1,5 @@
 import React from 'react'
-import { AppBar, IconButton, Menu, Toolbar, Tooltip, Typography } from '@mui/material'
+import { AppBar, IconButton, Toolbar, Tooltip, Typography } from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu';
 import { AccountCircle } from '@mui/icons-material';
 

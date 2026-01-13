@@ -319,3 +319,6 @@ export const UserList: React.FC = () => {
         </Container>
     )
 }
+/**
+ * Tu eres un habilidoso herrero artesanal. Y vas a crear planos (No planos profesionales, sólo esquemas simples con vistas y medidas) de piezas y ensamble de una especie de grúa para movilidad de una persona con capacidades diferentes. Estoy adjuntando una imagen que muestra un aparato comercial para tu referencia, pero yo quiero crear uno para uso personal. No necesita ser eléctrico, puede accionarse todo manualmente. Trata de usar un gato hidráulico que se usa para cambiar llantas de automóviles.
+ */

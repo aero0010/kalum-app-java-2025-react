@@ -1,6 +1,5 @@
-import React from 'react'
 import Swal from 'sweetalert2';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { Container, Typography, TextField, Button, Alert, Box } from '@mui/material';
 
@@ -20,14 +19,13 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         login(email, password).then((response: any) => {
-            if (response.data.token) {
+            if (response?.data?.token) {
                 Swal.fire({
                     icon: 'success',
                     title: 'Login Exitoso',
                     text: `Bienvenido, ${email}!`,
                 }).then((confirm) => {
                     if (confirm.isConfirmed) {
-                        
                         onLoginSuccess();
                     }
                 });
@@ -38,7 +36,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
                     text: 'Credenciales inválidas. Por favor, inténtalo de nuevo.',
                 }).then((confirm) => {
                     if (confirm.isConfirmed) {
-                        setError('Credenciales inválidas. Por favor, inténtalo de nuevo.');
                         console.log(confirm);
                     }
                 });

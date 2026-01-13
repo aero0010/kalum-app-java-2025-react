@@ -1,4 +1,4 @@
-import React, { useState} from 'react'
+import React, { useState, useEffect} from 'react'
 import { 
     Container, 
     Typography,
@@ -34,40 +34,40 @@ export const CareerList = () => {
     const [selectedCareer, setSelectedCareer] = useState<Career | null>(null);
     const [formNombre, setFormNombre] = useState<string>('');
 
-    React.useEffect(() => {
+    const fetchCareers = () => {
+        
+        setTimeout(() => {
+            const data: Career[] = [
+                { carreraId: 1, nombre: 'Ingeniería en Sistemas' },
+                { carreraId: 2, nombre: 'Licenciatura en Administración de Empresas' },
+                { carreraId: 3, nombre: 'Arquitectura' },
+                { carreraId: 4, nombre: 'Medicina' },
+                { carreraId: 5, nombre: 'Derecho' },
+                { carreraId: 6, nombre: 'Psicología' },
+                { carreraId: 7, nombre: 'Ingeniería Civil' },
+                { carreraId: 8, nombre: 'Contaduría Pública' },
+                { carreraId: 9, nombre: 'Comunicación Social' },
+                { carreraId: 10, nombre: 'Educación' }
+            ];
+            setCareers(data);
+            setLoading(false);
+        }, 2000);
+    }
+
+    useEffect(() => {
         fetchCareers();
     }, []);
 
-    const fetchCareers = async () => {
-        try {
-            setTimeout(() => {
-                const data: Career[] = [
-                    { carreraId: 1, nombre: 'Ingeniería en Sistemas' },
-                    { carreraId: 2, nombre: 'Licenciatura en Administración de Empresas' },
-                    { carreraId: 3, nombre: 'Arquitectura' },
-                    { carreraId: 4, nombre: 'Medicina' },
-                    { carreraId: 5, nombre: 'Derecho' },
-                    { carreraId: 6, nombre: 'Psicología' },
-                    { carreraId: 7, nombre: 'Ingeniería Civil' },
-                    { carreraId: 8, nombre: 'Contaduría Pública' },
-                    { carreraId: 9, nombre: 'Comunicación Social' },
-                    { carreraId: 10, nombre: 'Educación' }
-                ];
-                setCareers(data);
-            }, 2000);
-            
-        } catch (error) {
-            console.error('Error fetching careers:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
     const paginatedCareers = careers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
   
-    const handleOpenDialog = (career: Career | null) => {
-        setSelectedCareer(career);
-        setFormNombre(career ? career.nombre : '');
+    const handleOpenDialog = (career?: Career) => {
+        if(career){
+            setSelectedCareer(career);
+            setFormNombre(career.nombre);
+        }else{
+            setSelectedCareer(null);
+            setFormNombre('')
+        }
         setOpenDialog(true);
     };
 
@@ -79,7 +79,6 @@ export const CareerList = () => {
 
     const handleSaveCareer = () => {
         handleCloseDialog();
-
         Swal.fire({
             title: 'Carreras Técnicas',
             text: 'El registro fue almacenado exitosamente',
@@ -104,9 +103,11 @@ export const CareerList = () => {
             cancelButtonText: 'Cancelar'
         }).then((result) => {
             if (result.isConfirmed) {
-                const updatedCareers = careers.filter(career => career.carreraId !== careerId);
-                setCareers(updatedCareers);
-                Swal.fire('Eliminado', 'La carrera ha sido eliminada.', 'success');
+                Swal.fire({
+                    title: "Eliminado",
+                    text: "El registro fue eliminado correctamente",
+                    icon: "success"
+                });
             }
         });
     };
@@ -116,7 +117,7 @@ export const CareerList = () => {
         <Typography variant="h4" gutterBottom marginTop={2}>
             Lista de Carreras
         </Typography>
-        <Button variant="contained" color="primary" startIcon={<AddIcon />} sx={{ mb: 2 }} onClick={() => handleOpenDialog(null)}>
+        <Button variant="contained" color="primary" startIcon={<AddIcon />} sx={{ mb: 2 }} onClick={() => handleOpenDialog()}>
             Agregar Carrera
         </Button>
         {loading ? (

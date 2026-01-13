@@ -4,7 +4,7 @@ import electricidad from '../../assets/images/electricidad.jpg';
 import tics from '../../assets/images/tics.jpg';
 import mecanica from '../../assets/images/mecanica.jpg';
 import logotipo from '../../assets/images/logotipo.png';
-import { Box, Button, CardActions, CardContent, CardMedia, colors, Typography } from '@mui/material';
+import { Box, Button, CardActions, CardContent, CardMedia, Typography } from '@mui/material';
 
 interface ImageCareerItem{
     id: string;
@@ -26,12 +26,12 @@ const itemData: ImageCareerItem[] = [
         descripcion: 'Curso en el área de ELECTRICIDAD INDUSTRIAL con estándares industriales a nivel global.'
     },{
         id: '3',
-        img: eleccom,
+        img: tics,
         tittle: 'Desarrollo de Software',
         descripcion: 'Curso en el área de DESARROLLO DE SOFTWARE con estándares industriales a nivel global.'
     },{
         id: '4',
-        img: eleccom,
+        img: mecanica,
         tittle: 'Mecánica Automotriz',
         descripcion: 'Curso en el área de MECÁNICA AUTOMOTRIZ con estándares industriales a nivel global.'
     }

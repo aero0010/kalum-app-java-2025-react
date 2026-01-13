@@ -11,6 +11,7 @@ import { ProtectedRoute } from './routes/ProtectedRoute';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { UserList } from './components/users/UserList';
 import { Dashboard } from '@mui/icons-material';
+import { AdminsionExamList } from './admisionExams/AdminsionExamList';
 
 function App() {
   const { isAuthenticated, logout } = useAuth();
@@ -57,6 +58,11 @@ function App() {
             <CareerList />
           </ProtectedRoute>
         } />
+        <Route path='/examen-admision' element={
+          <ProtectedRoute>
+            <AdminsionExamList/>
+          </ProtectedRoute>
+        }/>
         <Route 
           path='/users' 
           element={

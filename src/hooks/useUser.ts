@@ -1,4 +1,4 @@
-import { userService, type UserCreateDTO } from "../components/services/userService";
+import { userService, type UserCreateDTO } from "../services/userService";
 import type { AppDispatch, RootState } from "../store/store"
 import { useDispatch, useSelector } from "react-redux"
 import { addUser, loadingUsers, updateUser, removeUser } from "../store/slices/users/userSlice"
