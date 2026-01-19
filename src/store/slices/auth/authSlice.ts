@@ -39,6 +39,7 @@ const authSlice = createSlice({
         state.user = decodeJWT(action.payload.data.token);
         state.token = action.payload.data.token;
         localStorage.setItem('token', action.payload.data.token);
+        localStorage.setItem('user', JSON.stringify(state.user));
     },
     loginFailure(state, action: PayloadAction<string>) {
       state.loading = false;

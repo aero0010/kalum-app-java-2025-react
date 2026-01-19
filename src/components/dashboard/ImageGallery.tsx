@@ -5,6 +5,8 @@ import tics from '../../assets/images/tics.jpg';
 import mecanica from '../../assets/images/mecanica.jpg';
 import logotipo from '../../assets/images/logotipo.png';
 import { Box, Button, CardActions, CardContent, CardMedia, Typography } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 interface ImageCareerItem{
     id: string;
@@ -38,6 +40,29 @@ const itemData: ImageCareerItem[] = [
 ]
 
 export const ImageGallery: React.FC = () => {
+    const navigate = useNavigate();
+
+    const handlerAsigjsonedCareer = (careerId: string) => {
+        const userString = localStorage.getItem('user');
+        console.log(userString);
+        if (userString) {
+            const user = JSON.parse(userString);
+            if (user.roles === 'ROLE_ACCOUNT') {
+                Swal.fire({
+                    icon: "warning",
+                    title: "Asignacion de examen de admisión",
+                    text: "Vemos que es la primera vez que te asignaras un curso en la plataforma, es necesario que realices un examen de admisión previo, selecciona a continuacion una fecha de exámen",
+                    footer: '<a href="#">Kalum v1</a>'
+                }).then(response => {
+                    if (response.isConfirmed) {
+                        navigate(`/examen-admision/${careerId}`);
+                    }
+                });
+            }
+        }else{
+            navigate('/login')
+        }
+    }
     return(
         <Box sx={{width: "100%", textAlign:"center"}}>
             <Box sx={{mt:2, mb:4}}>
@@ -48,7 +73,7 @@ export const ImageGallery: React.FC = () => {
                 {itemData.map((item) => (
                     <Grid key={item.id} sx={{ display: 'flex'}}>
                         <Card sx={{ borderRadius: 2, overflow: 'hidden' }}>
-                            <CardMedia component="img" image={item.img} height='220' alt={item.tittle} sx={{ width: '100%', aspectRatio:'16/9', objectFit: 'cover' }} />                       
+                            <CardMedia component="img" image={item.img} height='220' alt={item.tittle} sx={{ width: '100%', height: 250, objectFit: "contain", backgroundColor: "#000", padding: 1 }} />                       
                             <CardContent>
                                 <Typography variant='h6' sx={{ fontWeight: 'bold', mb: 0.5 }}>{item.tittle}</Typography>
                                 <Typography variant='body2' sx={{ color: 'text.secondary'}}>Tecnológico Kalum</Typography>
@@ -59,7 +84,7 @@ export const ImageGallery: React.FC = () => {
                                 </Typography>
                             </div>
                             <CardActions sx={{ justifyContent: 'space-between'}}>
-                                <Button size='small'>ASIGNARME</Button>
+                                <Button size='small' onClick={() => handlerAsigjsonedCareer(item.id)}>ASIGNARME</Button>
                                 <Button size='small'>COMPARTIR</Button>
                             </CardActions>
                         </Card>

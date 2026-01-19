@@ -30,6 +30,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
                     }
                 });
             } else {
+                setError(response?.data)
                 Swal.fire({
                     icon: 'error',
                     title: 'Error de Login',

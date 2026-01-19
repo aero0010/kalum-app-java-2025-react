@@ -1,4 +1,4 @@
-import { userService, type UserCreateDTO } from "../services/userService";
+import { userService } from "../services/userService";
 import type { AppDispatch, RootState } from "../store/store"
 import { useDispatch, useSelector } from "react-redux"
 import { addUser, loadingUsers, updateUser, removeUser } from "../store/slices/users/userSlice"
@@ -12,9 +12,9 @@ export const useUser = () => {
         dispatch(loadingUsers(response))
     }
 
-    const createUser = async(user:UserCreateDTO) => {
+    const createUser = async(user:any) => {
         const response = await userService.save(user);
-        //dispatch(addUser({id: response.data.id, fullName: `${user.lastname} ${user.lastname}`, ...user}))
+        dispatch(addUser({id: response.data.id, fullName: `${user.lastname} ${user.lastname}`, identityUser: 0, ...user}));
         return response;
     }
 

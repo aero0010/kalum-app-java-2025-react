@@ -1,10 +1,12 @@
 import React from 'react'
 import { Drawer, List, ListItemButton, ListItemIcon, ListItemText } from '@mui/material'
+import DashboardIcon from '@mui/icons-material/Dashboard';
 import ScoolIcon from '@mui/icons-material/School';
 import PeopleIcon from '@mui/icons-material/People';
 import SecurityIcon from '@mui/icons-material/Security'
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth'
 import { useNavigate } from 'react-router-dom';
+import { PermContactCalendar } from '@mui/icons-material';
 
 interface SideNavProps {
     open: boolean;
@@ -13,7 +15,7 @@ interface SideNavProps {
 
 interface MenuItem {
     text: string;
-    icon: React.ReactNode;
+    icon: React.ReactElement;
     path: string;
 }
 
@@ -25,10 +27,12 @@ export const SideNav: React.FC<SideNavProps> = ({ open, onClose }) => {
     const drawerWidth = 260;
 
     const menuItems: MenuItem[] = [
+        { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
         { text: 'Carreras Tecnicas', icon: <ScoolIcon />, path: '/careers' },
         { text: 'Usuarios', icon: <PeopleIcon />, path: '/users' },
         { text: 'Roles', icon: <SecurityIcon />, path: '/usuarios' },
-        { text: 'Examenes de Admision', icon: <CalendarMonthIcon/>, path: '/examen-admision'}
+        { text: 'Examenes de Admision', icon: <CalendarMonthIcon/>, path: '/examen-admision'},
+        { text: 'Resultado examen Admision', icon: <PermContactCalendar/>, path: '/status-examen-admision'}
     ]
 
     const handlerItemClick = (path: string) => {

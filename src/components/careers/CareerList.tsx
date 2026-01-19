@@ -1,14 +1,14 @@
-import React, { useState, useEffect} from 'react'
-import { 
-    Container, 
+import { useState, useEffect } from 'react'
+import {
+    Container,
     Typography,
     Button,
-    Table, 
-    TableBody, 
-    TableCell, 
-    TableContainer, 
-    TableHead, 
-    TableRow, 
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
     Paper,
     TablePagination,
     Box,
@@ -35,7 +35,7 @@ export const CareerList = () => {
     const [formNombre, setFormNombre] = useState<string>('');
 
     const fetchCareers = () => {
-        
+
         setTimeout(() => {
             const data: Career[] = [
                 { carreraId: 1, nombre: 'Ingeniería en Sistemas' },
@@ -59,12 +59,20 @@ export const CareerList = () => {
     }, []);
 
     const paginatedCareers = careers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
-  
+
+    if (loading) {
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 10 }}>
+                <CircularProgress />
+            </Box>
+        );
+    }
+
     const handleOpenDialog = (career?: Career) => {
-        if(career){
+        if (career) {
             setSelectedCareer(career);
             setFormNombre(career.nombre);
-        }else{
+        } else {
             setSelectedCareer(null);
             setFormNombre('')
         }
@@ -87,8 +95,9 @@ export const CareerList = () => {
         }).then((result) => {
             if (result.isConfirmed) {
                 handleCloseDialog();
-            }});
-        
+            }
+        });
+
     };
 
     const handleDeleteCareer = (careerId: number) => {
@@ -110,99 +119,100 @@ export const CareerList = () => {
                 });
             }
         });
+        console.log(careerId);
     };
-  
-    return (
-    <Container sx={{ mt: 10 }}>
-        <Typography variant="h4" gutterBottom marginTop={2}>
-            Lista de Carreras
-        </Typography>
-        <Button variant="contained" color="primary" startIcon={<AddIcon />} sx={{ mb: 2 }} onClick={() => handleOpenDialog()}>
-            Agregar Carrera
-        </Button>
-        {loading ? (
-            <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
-                <CircularProgress />
-            </Box>
-        ) : (
-        <TableContainer component={Paper}>
-            <Table>
-                <TableHead>
-                    <TableRow>
-                        <TableCell>ID</TableCell>
-                        <TableCell>Nombre</TableCell>
-                        <TableCell align="right">Acciones</TableCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {paginatedCareers.map((career) => (
-                        <TableRow key={career.carreraId}>
-                            <TableCell>{career.carreraId}</TableCell>
-                            <TableCell>{career.nombre}</TableCell>
-                            <TableCell align="right">
-                                <Button variant="outlined" color="primary" startIcon={<Edition />} sx={{ mr: 1 }} onClick={() => handleOpenDialog(career)}>
-                                    Editar
-                                </Button>
-                                <Button variant="outlined" color="secondary" startIcon={<DeleteIcon />}
-                                    onClick={() => handleDeleteCareer(career.carreraId)}>
-                                    Eliminar
-                                </Button>
-                            </TableCell>
-                        </TableRow>
-                    ))}
-                    {
-                        paginatedCareers.length === 0 && loading && (
-                            <TableRow>
-                                <TableCell colSpan={3} align="center">
-                                    No hay carreras disponibles.
-                                </TableCell>
-                            </TableRow>
-                        )
-                    }
-                </TableBody>
-            </Table>
-            <TablePagination
-                component="div"
-                count={careers.length}
-                page={page}
-                onPageChange={(_, newPage) => setPage(newPage)}
-                rowsPerPage={rowsPerPage}
-                onRowsPerPageChange={(event) => {
-                    setRowsPerPage(parseInt(event.target.value, 10));
-                    setPage(0);
-                }}
-                rowsPerPageOptions={[5, 10, 25]}
-            />
-        </TableContainer>
-        )}
 
-        <Dialog open={openDialog} fullWidth maxWidth="sm" onClose={() => {handleCloseDialog()}}>
-            {/* Formulario para agregar/editar carrera */}
-            <DialogTitle>{selectedCareer ? 'Editar Carrera' : 'Agregar Carrera'}</DialogTitle>
-            <DialogContent>
-                <TextField
-                    autoFocus
-                    margin="dense"
-                    label="Nombre de la Carrera"
-                    type="text"
-                    fullWidth
-                    variant="outlined"
-                    value={formNombre}
-                    onChange={(e) => setFormNombre(e.target.value)}
-                    defaultValue={selectedCareer ? selectedCareer.nombre : ''}
-                />
-            </DialogContent>
-            <DialogActions>
-                <Button onClick={() => handleCloseDialog()} color="secondary">
-                    Cancelar
-                </Button>
-                <Button onClick={() => {handleSaveCareer()}} color="primary" variant="contained">
-                    {selectedCareer ? 'Guardar Cambios' : 'Agregar'}
-                </Button>
-            </DialogActions>
-        </Dialog>
-    </Container>
-  )
+    return (
+        <Container sx={{ mt: 10 }}>
+            <Typography variant="h4" gutterBottom marginTop={2}>
+                Lista de Carreras
+            </Typography>
+            <Button variant="contained" color="primary" startIcon={<AddIcon />} sx={{ mb: 2 }} onClick={() => handleOpenDialog()}>
+                Agregar Carrera
+            </Button>
+            {loading ? (
+                <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
+                    <CircularProgress />
+                </Box>
+            ) : (
+                <TableContainer component={Paper}>
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>ID</TableCell>
+                                <TableCell>Nombre</TableCell>
+                                <TableCell align="right">Acciones</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {paginatedCareers.map((career) => (
+                                <TableRow key={career.carreraId}>
+                                    <TableCell>{career.carreraId}</TableCell>
+                                    <TableCell>{career.nombre}</TableCell>
+                                    <TableCell align="right">
+                                        <Button variant="outlined" color="primary" startIcon={<Edition />} sx={{ mr: 1 }} onClick={() => handleOpenDialog(career)}>
+                                            Editar
+                                        </Button>
+                                        <Button variant="outlined" color="secondary" startIcon={<DeleteIcon />}
+                                            onClick={() => handleDeleteCareer(career.carreraId)}>
+                                            Eliminar
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                            {
+                                paginatedCareers.length === 0 && loading && (
+                                    <TableRow>
+                                        <TableCell colSpan={3} align="center">
+                                            No hay carreras disponibles.
+                                        </TableCell>
+                                    </TableRow>
+                                )
+                            }
+                        </TableBody>
+                    </Table>
+                    <TablePagination
+                        component="div"
+                        count={careers.length}
+                        page={page}
+                        onPageChange={(_, newPage) => setPage(newPage)}
+                        rowsPerPage={rowsPerPage}
+                        onRowsPerPageChange={(event) => {
+                            setRowsPerPage(parseInt(event.target.value, 10));
+                            setPage(0);
+                        }}
+                        rowsPerPageOptions={[5, 10, 25]}
+                    />
+                </TableContainer>
+            )}
+
+            <Dialog open={openDialog} fullWidth maxWidth="sm" onClose={() => { handleCloseDialog() }}>
+                {/* Formulario para agregar/editar carrera */}
+                <DialogTitle>{selectedCareer ? 'Editar Carrera' : 'Agregar Carrera'}</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        label="Nombre de la Carrera"
+                        type="text"
+                        fullWidth
+                        variant="outlined"
+                        value={formNombre}
+                        onChange={(e) => setFormNombre(e.target.value)}
+                        defaultValue={selectedCareer ? selectedCareer.nombre : ''}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => handleCloseDialog()} color="secondary">
+                        Cancelar
+                    </Button>
+                    <Button onClick={() => { handleSaveCareer() }} color="primary" variant="contained">
+                        {selectedCareer ? 'Guardar Cambios' : 'Agregar'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+        </Container>
+    )
 }
 
 interface Career {

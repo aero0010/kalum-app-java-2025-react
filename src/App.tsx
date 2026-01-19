@@ -10,8 +10,10 @@ import { useAuth } from './hooks/useAuth';
 import { ProtectedRoute } from './routes/ProtectedRoute';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { UserList } from './components/users/UserList';
-import { Dashboard } from '@mui/icons-material';
-import { AdminsionExamList } from './admisionExams/AdminsionExamList';
+import { DashBoard } from './components/dashboard/DashBoard';
+import { AdmissionExamList } from './admisionExams/AdminsionExamList';
+import { FinalizeCandidateProcess } from './components/admissionExams/FinalizeCandidateProcess';
+import { StatusExamenAdmin } from './components/admissionExams/StatusExamenAdmin';
 
 function App() {
   const { isAuthenticated, logout } = useAuth();
@@ -50,7 +52,7 @@ function App() {
         <Route path="/login" 
         element={<LoginForm onLoginSuccess={() => window.location.href = '/dashboard'}/>} />
         <Route path='/dashboard' element={
-          <Dashboard/>
+          <DashBoard/>
         }/>
         <Route path='/careers' 
         element={
@@ -60,7 +62,12 @@ function App() {
         } />
         <Route path='/examen-admision' element={
           <ProtectedRoute>
-            <AdminsionExamList/>
+            <AdmissionExamList/>
+          </ProtectedRoute>
+        }/>
+        <Route path='/examenes-admision/:careerId' element={
+          <ProtectedRoute>
+            <FinalizeCandidateProcess/>
           </ProtectedRoute>
         }/>
         <Route 
@@ -70,6 +77,11 @@ function App() {
               <UserList/>
             </ProtectedRoute>
              
+          }/>
+          <Route path='/status-examen-admision' element={
+            <ProtectedRoute>
+              <StatusExamenAdmin/>
+            </ProtectedRoute>
           }/>
         <Route path='/' element={ <Navigate to='/dashboard' />} />
       </Routes>

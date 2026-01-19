@@ -25,7 +25,7 @@ import AddIcon from '@mui/icons-material/Add';
 import Edition from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Swal from 'sweetalert2';
-import { SolarPower, Visibility, VisibilityOff } from '@mui/icons-material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useUser } from '../../hooks/useUser';
 
 
@@ -55,6 +55,8 @@ export const UserList: React.FC = () => {
     const [formPassword, setFormPassword] = useState<string>('');
     const [showPassword, setShowPassword] = useState(false);
 
+    console.log(users);
+
     const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
@@ -65,15 +67,6 @@ export const UserList: React.FC = () => {
         }
         fetchData();
     }, []);
-
-
-    if (loading) {
-        return (
-            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 10 }}>
-                <CircularProgress />
-            </Box>
-        );
-    }
 
     const handleOpenDialog = (user?: any) => {
         if (user) {
@@ -169,6 +162,13 @@ export const UserList: React.FC = () => {
 
     const paginatedUsers = users.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
+    if (loading) {
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 10 }}>
+                <CircularProgress />
+            </Box>
+        );
+    }
 
     return (
         <Container sx={{ mt: 10 }}>
