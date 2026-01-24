@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react'
 import {
     Container,
     Typography,
@@ -13,21 +13,22 @@ import {
     TablePagination,
     Box,
     CircularProgress,
+    IconButton,
     Dialog,
     DialogTitle,
     DialogContent,
     TextField,
     DialogActions,
-    InputAdornment,
-    IconButton
+    InputAdornment
 } from '@mui/material';
+
 import AddIcon from '@mui/icons-material/Add';
 import Edition from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import Swal from 'sweetalert2';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { useUser } from '../../hooks/useUser';
 
+import Swal from 'sweetalert2';
+import { useUser } from '../../hooks/useUser';
 
 interface User {
     id: string;
@@ -40,108 +41,65 @@ interface User {
     createdAt: string;
 }
 
-export const UserList: React.FC = () => {
 
-    const { users, getUsers, createUser, updateUserThunk, deleteUser } = useUser();
+
+export const UserList: React.FC = () => {
+    const { users, getUsersThunk, createUserThunk, deleteUserThunk, updateUserThunk } = useUser();
+    const [loading, setLoading] = useState<boolean>(true);
     const [page, setPage] = useState<number>(0);
-    const [rowsPerPage, setRowsPerPage] = useState<number>(5);
-    const [openDialog, setOpenDialog] = useState<boolean>(false);
+    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [modalOpen, setModalOpen] = useState<boolean>(false);
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
-    const [formUsername, setFormUserName] = useState<string>('');
-    const [formFirstName, setFormFirstName] = useState<string>('')
-    const [formLastName, setFormLastName] = useState<string>('')
+    const [formUsername, setFormUsername] = useState<string>('');
+    const [formFirstName, setFormFirstName] = useState<string>('');
+    const [formLastName, setFormLastName] = useState<string>('');
     const [formEmail, setFormEmail] = useState<string>('');
     const [formPhoneNumber, setPhoneNumber] = useState<string>('');
     const [formPassword, setFormPassword] = useState<string>('');
     const [showPassword, setShowPassword] = useState(false);
 
-    console.log(users);
-
-    const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
-            await getUsers();
+            await getUsersThunk();
             setLoading(false);
         }
         fetchData();
     }, []);
 
-    const handleOpenDialog = (user?: any) => {
+    // const handleToggleShowPassword = () => {
+    //     setShowPassword((prev) => !prev);
+    // }
+
+
+    const handleOpenModal = (user?: any) => {
         if (user) {
-            console.log(user);
             setSelectedUser(user);
-            setFormUserName(user.username);
+            setFormUsername(user.username);
             setFormFirstName(user.firstname);
             setFormLastName(user.lastname);
             setFormEmail(user.email);
             setPhoneNumber(user.phoneNumber);
-
         } else {
             setSelectedUser(null);
-            setFormUserName('');
+            setFormUsername('');
         }
-        setOpenDialog(true);
+        setModalOpen(true);
     }
 
-    const handleCloseDialog = () => {
-        setOpenDialog(false);
-        setSelectedUser(null);
-        setFormUserName('');
-    };
-
-    const handleSaveUser = async () => {
-        let response: any;
-        const data = {
-            'username': formUsername,
-            'firstname': formFirstName,
-            'lastname': formLastName,
-            'email': formEmail,
-            'phoneNumber': formPhoneNumber,
-            'password': formPassword
-        };
-
-        if (selectedUser) {
-            response = await updateUserThunk(selectedUser.id, data);
-            console.log('Updated');
-            console.log(response);
-        } else {
-            response = await createUser(data);
-            console.log('Created')
-        }
-
-        handleCloseDialog();
-
-        if (response.success || response.status === 204) {
-
-            Swal.fire({
-                title: 'Usuarios',
-                text: response.message ? response.message : 'El registro fue almacenado correctamente.',
-                icon: 'success'
-            });
-        } else {
-            Swal.fire({
-                title: 'Usuarios',
-                text: response.message ? response.message : 'El registro no fue almacenado correctamente.',
-                icon: 'error'
-            });
-        }
-    };
-
-    const handleDeleteUser = (id: any) => {
+    const handleDelete = async (id: string) => {
         Swal.fire({
-            icon: 'warning',
-            title: 'Eliminar Carrera',
-            text: '¿Estás seguro de eliminar esta carrera?',
+            title: "Esta seguro de eliminar el registro?",
+            text: "Los cambios no serán reversibles!",
+            icon: "warning",
             showCancelButton: true,
-            confirmButtonText: 'Sí, eliminar',
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            cancelButtonText: 'Cancelar'
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Si, eliminar!"
         }).then((result) => {
             if (result.isConfirmed) {
-                deleteUser(id).then(response => {
+                deleteUserThunk(id).then(response => {
                     if (response.status == 204) {
                         Swal.fire({
                             title: "Eliminado",
@@ -156,8 +114,54 @@ export const UserList: React.FC = () => {
                         });
                     }
                 });
+
             }
         });
+    }
+
+    const handleChangePage = (_: unknown, newPage: number) => setPage(newPage);
+
+    const handleChangeRowsPerPage = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setRowsPerPage(parseInt(e.target.value, 10));
+        setPage(0);
+    }
+
+    const handleCloseModal = () => {
+        setModalOpen(false);
+        setSelectedUser(null);
+        setFormUsername('');
+    }
+
+    const handleSave = async () => {
+        let response: any;
+        const data = {
+            'username': formUsername,
+            'firstname': formFirstName,
+            'lastname': formLastName,
+            'email': formEmail,
+            'phoneNumber': formPhoneNumber,
+            'password': formPassword
+        };
+        if (selectedUser) {
+            response = await updateUserThunk(selectedUser.id, data);
+        } else {
+            response = await createUserThunk(data);
+        }
+        if (response.success || response.status === 204) {
+            handleCloseModal();
+            Swal.fire({
+                title: 'Usuarios',
+                text: response.message ? response.message : 'El registro fue almacenado correctamente.',
+                icon: 'success'
+            });
+        } else {
+            handleCloseModal();
+            Swal.fire({
+                title: 'Usuarios',
+                text: response.message ? response.message : 'El registro fue almacenado correctamente.',
+                icon: 'error'
+            });
+        }
     }
 
     const paginatedUsers = users.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
@@ -173,152 +177,80 @@ export const UserList: React.FC = () => {
     return (
         <Container sx={{ mt: 10 }}>
             <Typography variant='h4' gutterBottom>Usuarios</Typography>
-            <Button variant="contained" color="primary" startIcon={<AddIcon />} sx={{ mb: 2 }} onClick={() => handleOpenDialog()}>
+            <Button variant='contained' startIcon={<AddIcon />} sx={{ mb: 2 }} onClick={() => handleOpenModal()}>
                 Agregar Usuario
             </Button>
-            {loading ? (
-                <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
-                    <CircularProgress />
-                </Box>
-            ) : (
-                <TableContainer component={Paper}>
-                    <Table>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>ID</TableCell>
-                                <TableCell>USERNAME</TableCell>
-                                <TableCell>FULL NAME</TableCell>
-                                <TableCell>EMAIL</TableCell>
-                                <TableCell>IDENTITY</TableCell>
-                                <TableCell>PHONE</TableCell>
-                                <TableCell align='right'>ACCIONES</TableCell>
+            <TableContainer component={Paper}>
+                <Table>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>ID</TableCell>
+                            <TableCell>USERNAME</TableCell>
+                            <TableCell>FULL NAME</TableCell>
+                            <TableCell>EMAIL</TableCell>
+                            <TableCell>IDENTITY</TableCell>
+                            <TableCell>PHONE</TableCell>
+                            <TableCell align='right'>ACCIONES</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {paginatedUsers.map(((user) => (
+                            <TableRow key={user.id}>
+                                <TableCell>{user.id}</TableCell>
+                                <TableCell>{user.username}</TableCell>
+                                <TableCell>{user.fullName}</TableCell>
+                                <TableCell>{user.email}</TableCell>
+                                <TableCell>{user.identityUser}</TableCell>
+                                <TableCell>{user.phoneNumber}</TableCell>
+                                <TableCell align="right">
+                                    <IconButton onClick={() => { handleOpenModal(user) }} color='primary'>
+                                        <Edition />
+                                    </IconButton>
+                                </TableCell>
+                                <TableCell align='right'>
+                                    <IconButton color='error' onClick={() => { handleDelete(user.id) }}>
+                                        <DeleteIcon />
+                                    </IconButton>
+                                </TableCell>
                             </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {paginatedUsers.map((user: any) => (
-                                <TableRow key={user.id}>
-                                    <TableCell>{user.id}</TableCell>
-                                    <TableCell>{user.username}</TableCell>
-                                    <TableCell>{user.fullName}</TableCell>
-                                    <TableCell>{user.email}</TableCell>
-                                    <TableCell>{user.identityUser}</TableCell>
-                                    <TableCell>{user.phoneNumber}</TableCell>
-                                    <TableCell align="right">
-                                        <Button variant="outlined" color="primary" startIcon={<Edition />} sx={{ mr: 1 }} onClick={() => handleOpenDialog(user)}>
-                                            Editar
-                                        </Button>
-                                        <Button variant="outlined" color="secondary" startIcon={<DeleteIcon />}
-                                            onClick={() => handleDeleteUser(user.userId)}>
-                                            Eliminar
-                                        </Button>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                            {
-                                paginatedUsers.length === 0 && loading && (
-                                    <TableRow>
-                                        <TableCell colSpan={3} align="center">
-                                            No hay usuarios disponibles.
-                                        </TableCell>
-                                    </TableRow>
-                                )
-                            }
-                        </TableBody>
-                    </Table>
-                    <TablePagination
-                        component="div"
-                        count={users.length}
-                        page={page}
-                        onPageChange={(_, newPage) => setPage(newPage)}
-                        rowsPerPage={rowsPerPage}
-                        onRowsPerPageChange={(event) => {
-                            setRowsPerPage(parseInt(event.target.value, 10));
-                            setPage(0);
-                        }}
-                        rowsPerPageOptions={[5, 10, 25]}
-                    />
-                </TableContainer>
-            )}
-            <Dialog open={openDialog} fullWidth maxWidth="sm" onClose={() => { handleCloseDialog() }} disableEnforceFocus>
-                {/* Formulario para agregar/editar carrera */}
+                        )))}
+                        {paginatedUsers.length === 0 && (
+                            <TableRow>
+                                <TableCell colSpan={3} align='center'>
+                                    No hay Usuarios disponibles
+                                </TableCell>
+                            </TableRow>
+                        )}
+                    </TableBody>
+                </Table>
+                <TablePagination component="div" count={users.length} page={page} onPageChange={handleChangePage} rowsPerPage={rowsPerPage} onRowsPerPageChange={handleChangeRowsPerPage} rowsPerPageOptions={[5, 10, 20]} />
+            </TableContainer>
+            <Dialog open={modalOpen} fullWidth maxWidth="sm" onClose={handleCloseModal} disableEnforceFocus>
                 <DialogTitle>{selectedUser ? 'Editar Usuario' : 'Agregar Usuario'}</DialogTitle>
                 <DialogContent>
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        label="Usuario"
-                        type="text"
-                        fullWidth
-                        variant="outlined"
-                        value={formUsername}
-                        onChange={(e) => setFormUserName(e.target.value)}
-                        defaultValue={selectedUser ? selectedUser.username : ''}
-                    />
-                    <TextField
-                        label="Primer Nombre"
-                        fullWidth
-                        margin='normal'
-                        value={formFirstName}
-                        onChange={(e) => setFormFirstName(e.target.value)}
-                    />
-                    <TextField
-                        label="Apellido"
-                        fullWidth
-                        margin='normal'
-                        value={formLastName}
-                        onChange={(e) => setFormLastName(e.target.value)}
-                    />
-                    <TextField
-                        margin="dense"
-                        label="Correo Electronico"
-                        type="email"
-                        fullWidth
-                        variant="outlined"
-                        value={formEmail}
-                        onChange={(e) => setFormEmail(e.target.value)}
-                        defaultValue={selectedUser ? selectedUser.email : ''}
-                    />
-                    <TextField
-                        label="Phone Number"
-                        fullWidth margin='normal'
-                        value={formPhoneNumber}
-                        onChange={(e) => setPhoneNumber(e.target.value)}
-                    />
-                    <TextField
+                    <TextField label="Username" fullWidth margin='normal' value={formUsername} onChange={(e) => setFormUsername(e.target.value)} />
+                    <TextField label="First Name" fullWidth margin='normal' value={formFirstName} onChange={(e) => setFormFirstName(e.target.value)} />
+                    <TextField label="Last Name" fullWidth margin='normal' value={formLastName} onChange={(e) => setFormLastName(e.target.value)} />
+                    <TextField label="Email" type='email' fullWidth margin='normal' value={formEmail} onChange={(e) => setFormEmail(e.target.value)} />
+                    <TextField label="Phone Number" fullWidth margin='normal' value={formPhoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
+                    <TextField label="Password" type={showPassword ? 'text' : 'password'} fullWidth margin='normal' value={formPassword} onChange={(e) => setFormPassword(e.target.value)}
                         InputProps={{
                             endAdornment: (
                                 <InputAdornment position='end'>
-                                    <IconButton
-                                        onClick={() => setShowPassword(!showPassword)}
-                                        edge='end'
-                                        aria-label='toggle password visibility'
-                                    >
+                                    <IconButton onClick={() => setShowPassword(!showPassword)} edge='end' aria-label='toggle password visibility'>
                                         {showPassword ? <VisibilityOff /> : <Visibility />}
                                     </IconButton>
                                 </InputAdornment>
                             )
+
                         }}
-                        margin="dense"
-                        label="Password"
-                        type={showPassword ? "text" : "password"}
-                        fullWidth
-                        variant="outlined"
-                        value={formPassword}
-                        onChange={(e) => setFormPassword(e.target.value)}
                     />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => handleCloseDialog()} color="secondary">
-                        Cancelar
-                    </Button>
-                    <Button onClick={() => { handleSaveUser() }} color="primary" variant="contained">
-                        {selectedUser ? 'Guardar Cambios' : 'Agregar'}
-                    </Button>
+                    <Button onClick={handleCloseModal}>Cancelar</Button>
+                    <Button variant='contained' onClick={handleSave}>{selectedUser ? 'Actualizar' : 'Guardar'}</Button>
                 </DialogActions>
             </Dialog>
         </Container>
     )
 }
-/**
- * Tu eres un habilidoso herrero artesanal. Y vas a crear planos (No planos profesionales, sólo esquemas simples con vistas y medidas) de piezas y ensamble de una especie de grúa para movilidad de una persona con capacidades diferentes. Estoy adjuntando una imagen que muestra un aparato comercial para tu referencia, pero yo quiero crear uno para uso personal. No necesita ser eléctrico, puede accionarse todo manualmente. Trata de usar un gato hidráulico que se usa para cambiar llantas de automóviles.
- */
